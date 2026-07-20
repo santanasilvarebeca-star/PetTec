@@ -45,8 +45,8 @@
     width:100%;
     max-width:380px;
     background: radial-gradient(circle at 32% 22%, var(--shell-light), var(--shell) 55%, var(--shell-dark) 100%);
-    border-radius: 50% 50% 40% 40% / 32% 32% 16% 16%;
-    padding:50px 34px 38px;
+    border-radius: 58px 58px 44px 44px;
+    padding:46px 30px 34px;
     box-shadow: 0 20px 50px rgba(0,0,0,.55), inset 0 0 0 3px rgba(255,255,255,.35), inset 0 -14px 24px rgba(0,0,0,.18);
     position:relative;
   }
@@ -84,7 +84,7 @@
   /* ---------- SPEAKER + PHYSICAL BUTTONS ---------- */
   .speaker{ display:flex; justify-content:center; gap:6px; margin-top:16px; }
   .speaker span{ width:5px; height:5px; border-radius:50%; background:rgba(0,0,0,.28); }
-  .phys-row{ display:flex; justify-content:center; gap:26px; margin-top:10px; }
+  .phys-row{ display:flex; justify-content:center; gap:18px; margin-top:10px; flex-wrap:nowrap; }
   .phys-col{ display:flex; flex-direction:column; align-items:center; gap:5px; }
   .phys-btn{
     width:46px; height:46px; border-radius:50%;
@@ -151,13 +151,17 @@
     position:relative;
     min-height:110px;
   }
-  #pet-box{ position:relative; width:260px; height:200px; max-width:100%; display:flex; align-items:center; justify-content:center; margin:0 auto; animation: bob 2.2s ease-in-out infinite; }
-  #pet-emoji{ font-size:72px; }
+  #pet-emoji{ font-size:72px; animation: bob 2.2s ease-in-out infinite; }
   @keyframes bob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
   #pet-name-tag{ position:absolute; bottom:2px; left:50%; transform:translateX(-50%); font-size:10px; background:var(--ink); color:#eef2df; padding:3px 10px; border-radius:8px; white-space:nowrap; max-width:calc(100% - 12px); overflow:hidden; text-overflow:ellipsis; }
   #pet-msg{ text-align:center; font-size:11px; min-height:32px; opacity:.8; margin-bottom:6px;}
 
-  #pet-clothing{ position:absolute; pointer-events:none; }
+  #pet-clothing{ position:absolute; pointer-events:none; font-size:26px; }
+  #pet-clothing.cloth-hat, #pet-clothing.cloth-crown{ top:2px; left:50%; transform:translateX(-50%); font-size:30px; }
+  #pet-clothing.cloth-bow{ top:14px; left:62%; font-size:20px; }
+  #pet-clothing.cloth-sunglasses{ top:32px; left:50%; transform:translateX(-50%); font-size:24px; }
+  #pet-clothing.cloth-scarf{ bottom:26px; left:50%; transform:translateX(-50%); font-size:24px; }
+  #pet-clothing.cloth-flower{ top:10px; left:34%; font-size:18px; }
 
   .stats{ display:flex; flex-direction:column; gap:7px; margin-bottom:10px; }
   .stat-row{ display:flex; align-items:center; gap:8px; font-size:15px; }
@@ -253,10 +257,8 @@
       </div>
 
       <div class="stage">
-        <div id="pet-box">
-          <div id="pet-emoji">🐣</div>
-          <div id="pet-clothing"></div>
-        </div>
+        <div id="pet-emoji">🐣</div>
+        <div id="pet-clothing"></div>
         <div id="pet-name-tag">--</div>
       </div>
       <div id="pet-msg">Carregando...</div>
@@ -268,12 +270,6 @@
         <div class="stat-row">🛁<div class="bar-bg"><div class="bar-fill hygiene" id="bar-hygiene"></div></div></div>
       </div>
 
-      <div class="actions">
-        <button class="action-btn" onclick="doAction('feed')"><span class="emo">🍖</span>Alimentar</button>
-        <button class="action-btn" onclick="doAction('play')"><span class="emo">🎾</span>Brincar</button>
-        <button class="action-btn" id="sleep-btn" onclick="doAction('sleep')"><span class="emo">😴</span>Dormir</button>
-        <button class="action-btn" onclick="doAction('bath')"><span class="emo">🛁</span>Banho</button>
-      </div>
 
       <div class="bottom-row">
         <button class="btn btn-amber" onclick="openPanel('shop-panel')">🛒 Loja</button>
@@ -322,7 +318,8 @@
   <div class="phys-row">
     <div class="phys-col"><button class="phys-btn" onclick="doAction('feed')">🍖</button><span class="phys-label pixel">A</span></div>
     <div class="phys-col"><button class="phys-btn" onclick="doAction('play')">🎾</button><span class="phys-label pixel">B</span></div>
-    <div class="phys-col"><button class="phys-btn" onclick="doAction('sleep')">😴</button><span class="phys-label pixel">C</span></div>
+    <div class="phys-col"><button class="phys-btn" id="sleep-btn" onclick="doAction('sleep')">😴</button><span class="phys-label pixel">C</span></div>
+    <div class="phys-col"><button class="phys-btn" onclick="doAction('bath')">🛁</button><span class="phys-label pixel">D</span></div>
   </div>
 
   <div class="footer-note">
@@ -350,62 +347,9 @@ const CLOTHES = [
   {id:'crown',      emoji:'👑', name:'Coroa',          cost:40},
   {id:'bow',        emoji:'🎀', name:'Laço',           cost:15},
   {id:'sunglasses', emoji:'🕶️', name:'Óculos escuros', cost:25},
-  {id:'scarf',      emoji:'🎓', name:'Capelo',         cost:18},
+  {id:'scarf',      emoji:'🧣', name:'Cachecol',       cost:18},
   {id:'flower',     emoji:'🌸', name:'Florzinha',      cost:12},
 ];
-
-/* ---------------- POSIÇÃO DA ROUPA POR ESPÉCIE ---------------- */
-/* Valores calibrados manualmente, testando cada bichinho com cada
-   acessório no navegador real (emoji renderiza diferente em cada
-   sistema, então isso é mais confiável do que estimar). */
-const CLOTH_ANCHOR = {
-  hat:'top', crown:'top', bow:'top', sunglasses:'top', scarf:'top', flower:'top'
-};
-
-const CLOTH_POSITIONS = {
-  "🐣": {
-    hat:{v:47,left:50,size:24}, crown:{v:40,left:50,size:26}, bow:{v:57,left:53,size:15},
-    sunglasses:{v:62,left:50,size:26}, scarf:{v:47,left:50,size:24}, flower:{v:61,left:46,size:14}
-  },
-  "🐶": {
-    hat:{v:45,left:50,size:30}, crown:{v:40,left:50,size:32}, bow:{v:56,left:59,size:20},
-    sunglasses:{v:82,left:50,size:24}, scarf:{v:45,left:50,size:30}, flower:{v:72,left:41,size:18}
-  },
-  "🐱": {
-    hat:{v:55,left:50,size:30}, crown:{v:55,left:50,size:32}, bow:{v:75,left:53,size:20},
-    sunglasses:{v:90,left:50,size:31}, scarf:{v:55,left:50,size:30}, flower:{v:76,left:45,size:18}
-  },
-  "🐰": {
-    hat:{v:61,left:50,size:30}, crown:{v:57,left:50,size:32}, bow:{v:75,left:52,size:20},
-    sunglasses:{v:90,left:50,size:31}, scarf:{v:61,left:50,size:30}, flower:{v:82,left:46,size:18}
-  },
-  "🐼": {
-    hat:{v:48,left:50,size:30}, crown:{v:45,left:50,size:32}, bow:{v:70,left:56,size:20},
-    sunglasses:{v:85,left:50,size:31}, scarf:{v:48,left:50,size:30}, flower:{v:75,left:43,size:18}
-  },
-  "🐷": {
-    hat:{v:48,left:50,size:30}, crown:{v:45,left:50,size:32}, bow:{v:70,left:57,size:20},
-    sunglasses:{v:85,left:50,size:28}, scarf:{v:48,left:50,size:30}, flower:{v:71,left:45,size:18}
-  },
-  "🦊": {
-    hat:{v:57,left:50,size:30}, crown:{v:50,left:50,size:32}, bow:{v:72,left:54,size:20},
-    sunglasses:{v:90,left:50,size:28}, scarf:{v:57,left:50,size:30}, flower:{v:73,left:42,size:18}
-  },
-  "🐸": {
-    hat:{v:39,left:50,size:30}, crown:{v:35,left:50,size:32}, bow:{v:61,left:63,size:20},
-    sunglasses:{v:54,left:50,size:44}, scarf:{v:39,left:50,size:30}, flower:{v:62,left:39,size:18}
-  }
-};
-
-function clothingStyleFor(species, clothId){
-  const table = CLOTH_POSITIONS[species] || CLOTH_POSITIONS['🐶'];
-  const pos = table[clothId];
-  if(!pos) return '';
-  const anchor = CLOTH_ANCHOR[clothId] || 'top';
-  let style = `left:${pos.left}%; font-size:${pos.size}px; transform:translateX(-50%);`;
-  style += anchor === 'bottom' ? `bottom:${pos.v}px;` : `top:${pos.v}px;`;
-  return style;
-}
 let currentUser = null;
 let pet = null;
 let musicOn = false;
@@ -426,7 +370,7 @@ function simpleHash(str){
 
 /* ---------------- STORAGE ---------------- */
 /* Ordem de prioridade automática:
-   1) Firebase (se você preencher o firebaseConfig abaixo) -> banco de dados
+   1) Firebase (se você preencher o FIREBASE_CONFIG abaixo) -> banco de dados
       de verdade na nuvem, funciona em qualquer site/hospedagem, para
       qualquer pessoa, de qualquer lugar.
    2) window.storage do Claude -> só funciona quando este jogo roda como
@@ -435,21 +379,21 @@ function simpleHash(str){
       de nada externo, mas cada pessoa só vê os próprios dados. */
 const DB_PREFIX = 'pettec:';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBudCq9Rb291Qnsj3oOEumfgNDa-_mEHMQ",
-  authDomain: "cuida-pet-9ae1d.firebaseapp.com",
-  projectId: "cuida-pet-9ae1d",
-  storageBucket: "cuida-pet-9ae1d.firebasestorage.app",
-  messagingSenderId: "150632685223",
-  appId: "1:150632685223:web:5466802c43f69d0c684582",
+const FIREBASE_CONFIG = {
+  apiKey: "COLE_AQUI",
+  authDomain: "COLE_AQUI",
+  projectId: "COLE_AQUI",
+  storageBucket: "COLE_AQUI",
+  messagingSenderId: "COLE_AQUI",
+  appId: "COLE_AQUI"
 };
 
 let fbDb = null;
 function tryInitFirebase(){
-  if(!firebaseConfig.apiKey || firebaseConfig.apiKey === "COLE_AQUI") return false;
+  if(!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === "COLE_AQUI") return false;
   if(typeof firebase === 'undefined') return false;
   try{
-    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
     fbDb = firebase.firestore();
     return true;
   }catch(e){
@@ -833,16 +777,16 @@ function updateUI(){
   document.getElementById('bar-fun').style.width = pet.fun+'%';
   document.getElementById('bar-energy').style.width = pet.energy+'%';
   document.getElementById('bar-hygiene').style.width = pet.hygiene+'%';
-  document.getElementById('sleep-btn').innerHTML = pet.sleeping ? '<span class="emo">⏰</span>Acordar' : '<span class="emo">😴</span>Dormir';
+  document.getElementById('sleep-btn').textContent = pet.sleeping ? '⏰' : '😴';
 
   const clothingEl = document.getElementById('pet-clothing');
   if(pet.equipped){
     const c = CLOTHES.find(x=>x.id===pet.equipped);
     clothingEl.textContent = c ? c.emoji : '';
-    clothingEl.style.cssText = c ? ('position:absolute; pointer-events:none; ' + clothingStyleFor(pet.species, c.id)) : '';
+    clothingEl.className = c ? ('cloth-'+c.id) : '';
   } else {
     clothingEl.textContent = '';
-    clothingEl.style.cssText = '';
+    clothingEl.className = '';
   }
 
   const avg = (pet.hunger+pet.fun+pet.energy+pet.hygiene)/4;
@@ -936,15 +880,24 @@ async function loadLeaderboard(){
 
 /* ---------------- MUSIC ---------------- */
 async function toggleMusic(){
+  const audioEl = document.getElementById('bg-music');
   if(!musicOn){
     try{ await Tone.start(); }catch(e){}
     if(!synth){
       synth = new Tone.Synth({oscillator:{type:'square'}, envelope:{attack:0.01, decay:0.08, sustain:0.25, release:0.25}}).toDestination();
       synth.volume.value = -12;
     }
-    musicOn = true;
-    document.getElementById('music-toggle').textContent = '🔊';
+    audioEl.volume = 0.55;
+    try{
+      await audioEl.play();
+      musicOn = true;
+      document.getElementById('music-toggle').textContent = '🔊';
+    }catch(e){
+      console.error('Erro ao tocar música', e);
+      showMsg('Não foi possível tocar a música 🔇');
+    }
   } else {
+    audioEl.pause();
     musicOn = false;
     document.getElementById('music-toggle').textContent = '🔇';
   }
